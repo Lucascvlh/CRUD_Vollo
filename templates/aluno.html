@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Acadêmica - Alunos</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Estilo global */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0056b3;
+            margin-top: 30px;
+            font-size: 2.5em;
+        }
+
+        /* Navegação */
+        nav {
+            background-color: #007bff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            font-size: 1.2em;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #ffcc00;
+        }
+
+        /* Seções */
+        .section {
+            display: none;
+            padding: 20px;
+        }
+
+        .active {
+            display: block;
+        }
+
+        /* Formulário */
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        form input[type="text"], form input[type="number"], form select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        form button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        form button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Tabela */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        table td button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        table td button:hover {
+            background-color: #218838;
+        }
+
+        table td button.delete {
+            background-color: #dc3545;
+        }
+
+        table td button.delete:hover {
+            background-color: #c82333;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            nav {
+                padding: 10px;
+            }
+
+            nav a {
+                font-size: 1em;
+                margin: 0 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            form input[type="text"], form input[type="number"], form select {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+
+            form button {
+                font-size: 0.9em;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Gestão Acadêmica - Alunos</h1>
+
+    <!-- Navegação -->
+    <nav>
+        <a href="disciplina" onclick="mostrarSecao('disciplina')">Disciplinas</a>
+        <a href="aluno" onclick="mostrarSecao('aluno')">Alunos</a>
+        <a href="curso" onclick="mostrarSecao('curso')">Cursos</a>
+        <a href="professor" onclick="mostrarSecao('professor')">Professores</a>
+    </nav>
+
+    <!-- Seção Aluno -->
+    <div id="aluno" class="section active">
+        <h2>Gestão de Alunos</h2>
+        
+        <!-- Formulário para adicionar aluno -->
+        <form id="form-aluno">
+            <label for="nome">Nome do Aluno:</label>
+            <input type="text" id="nome" required placeholder="Digite o nome do aluno" />
+            <label for="cpf">CPF:</label>
+            <input type="text" id="cpf" required placeholder="Digite o CPF do aluno" />
+            <label for="endereco">Endereço:</label>
+            <input type="text" id="endereco" placeholder="Digite o endereço do aluno" />
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" required placeholder="Digite a senha do aluno" />
+            <label for="curso_id">Curso:</label>
+            <select id="curso_id" required>
+                <option value="">Selecione um curso</option>
+                <!-- Cursos serão carregados aqui -->
+            </select>
+            <button type="submit">Adicionar Aluno</button>
+        </form>
+        
+        <!-- Tabela para listar alunos -->
+        <table id="alunos-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>CPF</th>
+                    <th>Endereço</th>
+                    <th>Curso</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Os alunos serão carregados aqui -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Função para mostrar a seção selecionada e esconder as outras
+        function mostrarSecao(secao) {
+            $('.section').removeClass('active');
+            $('#' + secao).addClass('active');
+        }
+
+        // Função para carregar os alunos
+        function carregarAlunos() {
+            $.get('http://localhost:4000/alunos', function(data) {
+                const tableBody = $('#alunos-table tbody');
+                tableBody.empty();  // Limpa a tabela antes de adicionar os novos dados
+                data.forEach(aluno => {
+                    $.get(`http://localhost:4000/cursos/${aluno.curso_id}`, function(curso) {
+                        tableBody.append(`
+                            <tr id="aluno-${aluno.id}">
+                                <td>${aluno.nome}</td>
+                                <td>${aluno.cpf}</td>
+                                <td>${aluno.endereco}</td>
+                                <td>${curso.nome}</td>
+                                <td>
+                                    <button onclick="editarAluno('${aluno.nome}', '${aluno.cpf}', '${aluno.endereco}', '${aluno.senha}', ${aluno.curso_id})">Editar</button>
+                                    <button class="delete" onclick="deletarAluno(${aluno.id})">Excluir</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                });
+            });
+        }
+
+        // Função para carregar os cursos
+        function carregarCursos() {
+            $.get('http://localhost:4000/cursos', function(data) {
+                const cursoSelect = $('#curso_id');
+                cursoSelect.empty();  // Limpa o select antes de adicionar os novos cursos
+                cursoSelect.append('<option value="">Selecione um curso</option>');  // Adiciona a opção inicial
+                data.forEach(curso => {
+                    cursoSelect.append(`<option value="${curso.id}">${curso.nome}</option>`);
+                });
+            });
+        }
+
+        // Adicionar funcionalidade do formulário de alunos
+        $('#form-aluno').submit(function(event) {
+            event.preventDefault();
+
+            const nome = $('#nome').val();
+            const cpf = $('#cpf').val();
+            const endereco = $('#endereco').val();
+            const senha = $('#senha').val();
+            const curso_id = $('#curso_id').val();
+
+            $.ajax({
+                url: 'http://localhost:4000/alunos',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    nome: nome,
+                    cpf: cpf,
+                    endereco: endereco,
+                    senha: senha,
+                    curso_id: curso_id
+                }),
+                success: function(response) {
+                    alert('Aluno adicionado com sucesso!');
+                    carregarAlunos();  // Recarrega a tabela com os dados atualizados
+                    $('#form-aluno')[0].reset();  // Limpa o formulário
+                },
+                error: function(error) {
+                    alert('Erro ao adicionar aluno: ' + error.responseText);
+                }
+            });
+        });
+
+        // Função para editar aluno
+        function editarAluno(id, nome, cpf, endereco, senha, curso_id) {
+            const novoNome = prompt("Editar nome do aluno:", nome);
+            const novoCpf = prompt("Editar CPF:", cpf);
+            const novoEndereco = prompt("Editar endereço:", endereco);
+            const novaSenha = prompt("Editar senha:", senha);
+            const novoCursoId = prompt("Editar Curso ID do Aluno:", curso_id);
+
+            if (novoNome && novoCpf && novoEndereco && novaSenha && novoCursoId) {
+                $.ajax({
+                    url: `http://localhost:4000/alunos/${id}`,
+                    method: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        nome: novoNome,
+                        cpf: novoCpf,
+                        endereco: novoEndereco,
+                        senha: novaSenha,
+                        curso_id: novoCursoId
+                    }),
+                    success: function(response) {
+                        alert('Aluno atualizado com sucesso!');
+                        carregarAlunos();  // Recarrega a tabela com os dados atualizados
+                    },
+                    error: function(error) {
+                        alert('Erro ao atualizar aluno: ' + error.responseText);
+                    }
+                });
+            }
+        }
+
+        // Função para deletar aluno
+        function deletarAluno(id) {
+            const confirmacao = confirm("Tem certeza que deseja excluir este aluno?");
+            if (confirmacao) {
+                $.ajax({
+                    url: `http://localhost:4000/alunos/${id}`,
+                    method: 'DELETE',
+                    success: function(response) {
+                        alert('Aluno excluído com sucesso!');
+                        carregarAlunos();  // Recarrega a tabela com os alunos restantes
+                    },
+                    error: function(error) {
+                        alert('Erro ao excluir aluno: ' + error.responseText);
+                    }
+                });
+            }
+        }
+
+        // Carregar cursos e alunos quando a página for carregada
+        $(document).ready(function() {
+            carregarCursos();
+            carregarAlunos();
+        });
+    </script>
+
+</body>
+</html>

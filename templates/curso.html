@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Acadêmica - Cursos</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Estilo global */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0056b3;
+            margin-top: 30px;
+            font-size: 2.5em;
+        }
+
+        /* Navegação */
+        nav {
+            background-color: #007bff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            font-size: 1.2em;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #ffcc00;
+        }
+
+        /* Seções */
+        .section {
+            display: none;
+            padding: 20px;
+        }
+
+        .active {
+            display: block;
+        }
+
+        /* Formulário */
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        form input[type="text"], form select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        form button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        form button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Tabela */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        table td button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        table td button:hover {
+            background-color: #218838;
+        }
+
+        table td button.delete {
+            background-color: #dc3545;
+        }
+
+        table td button.delete:hover {
+            background-color: #c82333;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            nav {
+                padding: 10px;
+            }
+
+            nav a {
+                font-size: 1em;
+                margin: 0 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            form input[type="text"], form select {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+
+            form button {
+                font-size: 0.9em;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Gestão Acadêmica - Cursos</h1>
+
+    <!-- Navegação -->
+    <nav>
+        <a href="disciplina" onclick="mostrarSecao('disciplina')">Disciplinas</a>
+        <a href="aluno" onclick="mostrarSecao('aluno')">Alunos</a>
+        <a href="curso" onclick="mostrarSecao('curso')">Cursos</a>
+        <a href="professor" onclick="mostrarSecao('professor')">Professores</a>
+    </nav>
+
+    <!-- Seção Curso -->
+    <div id="curso" class="section active">
+        <h2>Gestão de Cursos</h2>
+        
+        <!-- Formulário de edição -->
+        <form id="form-curso">
+            <label for="nome">Nome do Curso:</label>
+            <input type="text" id="nome" required placeholder="Digite o nome do curso" />
+            
+            <label for="disciplinas">Disciplinas:</label>
+            <div id="disciplinas">
+                <!-- As disciplinas serão carregadas aqui dinamicamente como checkboxes -->
+            </div>
+            
+            <button type="submit">Salvar Alterações</button>
+        </form>
+
+        
+        <!-- Tabela para listar cursos -->
+        <table id="cursos-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Carga Horária Total</th>
+                    <th>Disciplinas</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Os cursos serão carregados aqui -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Função para mostrar a seção selecionada e esconder as outras
+        function mostrarSecao(secao) {
+            $('.section').removeClass('active');
+            $('#' + secao).addClass('active');
+        }
+    
+        // Função global para deletar o curso
+        function deletarCurso(id) {
+            if (confirm('Tem certeza de que deseja excluir este curso?')) {
+                $.ajax({
+                    url: `http://localhost:4000/cursos/${id}`,
+                    type: 'DELETE',
+                    success: function() {
+                        alert('Curso excluído com sucesso!');
+                        carregarCursos();
+                    },
+                    error: function() {
+                        alert('Erro ao excluir o curso');
+                    }
+                });
+            }
+        }
+    
+        // Função para editar o curso
+        function editarCurso(id, nome, disciplinas, cargaHorariaTotal) {
+            // Atribuir os valores ao formulário de edição
+            $('#nome').val(nome);
+
+            // Limpar a seleção anterior das disciplinas
+            $('#disciplinas input[type="checkbox"]').prop('checked', false);
+
+            // Obter os IDs das disciplinas associadas ao curso
+            const disciplinaIds = disciplinas.split(',');
+
+            // Pré-selecionar as disciplinas associadas ao curso
+            disciplinaIds.forEach(function(disciplinaId) {
+                // Marcar apenas os checkboxes que correspondem aos IDs das disciplinas associadas
+                $(`#disciplina-${disciplinaId}`).prop('checked', true);
+            });
+
+            // Alterar a URL para PUT e o comportamento de envio
+            $('#form-curso').off('submit').submit(function(event) {
+                event.preventDefault();  // Impede o envio do formulário tradicional
+
+                const nome = $('#nome').val();
+                const disciplinasSelecionadas = $('#disciplinas input[type="checkbox"]:checked')
+                    .map(function() {
+                        return parseInt($(this).val(), 10);  // Garantir que o valor seja um número
+                    }).get();  // Retorna um array com os IDs das disciplinas
+
+                const cargaHorariaTotal = calcularCargaHorariaTotal(); // Aqui você calcula a carga horária
+
+                // Enviar a requisição PUT para editar o curso
+                $.ajax({
+                    url: `http://localhost:4000/cursos/${id}`,  // A URL de PUT para editar o curso
+                    method: 'PUT',  // Garantir que seja PUT
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        nome: nome,
+                        disciplinas: disciplinasSelecionadas,  // Passando o array de IDs das disciplinas
+                        carga_horaria_total: cargaHorariaTotal  // Passando o valor calculado da carga horária total
+                    }),
+                    success: function(response) {
+                        alert('Curso editado com sucesso!');
+                        carregarCursos();  // Atualiza a lista de cursos após a edição
+                    },
+                    error: function() {
+                        alert('Erro ao editar o curso');
+                    }
+                });
+            });
+        }
+    
+        // Função para carregar cursos
+        function carregarCursos() {
+            $.get('http://localhost:4000/cursos', function(cursos) {
+                $('#cursos-table tbody').empty(); // Limpa a tabela antes de recarregar
+                cursos.forEach(function(curso) {
+                    // Obtém os IDs das disciplinas associadas ao curso
+                    const disciplinaIds = curso.disciplinas.split(',');
+    
+                    // Faz uma consulta para obter os nomes das disciplinas
+                    $.get('http://localhost:4000/disciplinas', function(disciplinas) {
+                        // Mapeia os IDs das disciplinas para os nomes
+                        const nomesDisciplinas = disciplinas.filter(disciplina => disciplinaIds.includes(disciplina.id.toString()))
+                                                            .map(disciplina => disciplina.nome)
+                                                            .join(', ');  // Junta os nomes das disciplinas com vírgula
+                        
+                        // Adiciona a linha na tabela com os nomes das disciplinas
+                        $('#cursos-table tbody').append(`
+                            <tr>
+                                
+                                <td>${curso.nome}</td>
+                                <td>${curso.carga_horaria_total}</td>
+                                <td>${nomesDisciplinas}</td>
+                                <td>
+                                    <button onclick="editarCurso('${curso.nome}', '${curso.disciplinas}', ${curso.carga_horaria_total})">Editar</button>
+                                    <button class="delete" onclick="deletarCurso(${curso.id})">Excluir</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                });
+            });
+        }
+    
+        // Função para carregar disciplinas
+        function carregarDisciplinas() {
+            $.get('http://localhost:4000/disciplinas', function(disciplinas) {
+                $('#disciplinas').empty(); // Limpa o container de disciplinas
+                disciplinas.forEach(function(disciplina) {
+                    $('#disciplinas').append(`
+                        <input type="checkbox" id="disciplina-${disciplina.id}" value="${disciplina.id}" data-carga="${disciplina.carga_horaria}" />
+                        <label for="disciplina-${disciplina.id}">${disciplina.nome} - Carga Horária: ${disciplina.carga_horaria} horas</label><br>
+                    `);
+                });
+            });
+        }
+    
+        // Função para calcular a carga horária total
+        function calcularCargaHorariaTotal() {
+            let cargaHorariaTotal = 0;
+            $('#disciplinas input[type="checkbox"]:checked').each(function() {
+                cargaHorariaTotal += parseInt($(this).data('carga'));
+            });
+            return cargaHorariaTotal;
+        }
+    
+        // Submeter o formulário para adicionar o curso
+        $('#form-curso').submit(function(event) {
+            event.preventDefault();
+    
+            const nome = $('#nome').val();
+            const disciplinasSelecionadas = $('#disciplinas input[type="checkbox"]:checked')
+                .map(function() {
+                    return parseInt($(this).val(), 10);  // Garantir que o valor seja um número
+                }).get();  // Retorna um array com os IDs das disciplinas
+    
+            const cargaHorariaTotal = $('#carga_horaria_total').val();  // Esse valor será calculado automaticamente
+    
+            // Enviar os dados para o servidor
+            $.ajax({
+                url: 'http://localhost:4000/cursos',  // Ajuste a URL conforme necessário
+                method: 'POST',
+                contentType: 'application/json',  // Garantir que o conteúdo seja JSON
+                data: JSON.stringify({
+                    nome: nome,
+                    disciplinas: disciplinasSelecionadas,  // Passando o array de IDs
+                    carga_horaria_total: cargaHorariaTotal  // Este valor será calculado no frontend
+                }),
+                success: function(response) {
+                    alert('Curso adicionado com sucesso!');
+                    carregarCursos();  // Atualiza a lista de cursos
+                },
+                error: function() {
+                    alert('Erro ao adicionar curso');
+                }
+            });
+        });
+    
+        // Chamar as funções de carga inicial
+        carregarDisciplinas();
+        carregarCursos();
+    </script>
+    
+
+</body>
+</html>

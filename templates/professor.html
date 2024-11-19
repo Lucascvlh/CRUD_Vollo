@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Acadêmica - Professores</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Estilo global */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0056b3;
+            margin-top: 30px;
+            font-size: 2.5em;
+        }
+
+        /* Navegação */
+        nav {
+            background-color: #007bff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            font-size: 1.2em;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #ffcc00;
+        }
+
+        /* Seções */
+        .section {
+            display: none;
+            padding: 20px;
+        }
+
+        .active {
+            display: block;
+        }
+
+        /* Formulário */
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        form input[type="text"], form input[type="password"], form select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        form button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        form button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Tabela */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        table td button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        table td button:hover {
+            background-color: #218838;
+        }
+
+        table td button.delete {
+            background-color: #dc3545;
+        }
+
+        table td button.delete:hover {
+            background-color: #c82333;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            nav {
+                padding: 10px;
+            }
+
+            nav a {
+                font-size: 1em;
+                margin: 0 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            form input[type="text"], form input[type="password"], form select {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+
+            form button {
+                font-size: 0.9em;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Gestão Acadêmica - Professores</h1>
+
+    <!-- Navegação -->
+    <nav>
+        <a href="disciplina" onclick="mostrarSecao('disciplina')">Disciplinas</a>
+        <a href="aluno" onclick="mostrarSecao('aluno')">Alunos</a>
+        <a href="curso" onclick="mostrarSecao('curso')">Cursos</a>
+        <a href="professor" onclick="mostrarSecao('professor')">Professores</a>
+    </nav>
+
+    <!-- Seção Professor -->
+    <div id="professor" class="section active">
+        <h2>Gestão de Professores</h2>
+        
+        <!-- Formulário para adicionar ou editar professor -->
+        <form id="form-professor">
+            <label for="nome">Nome do Professor:</label>
+            <input type="text" id="nome" required placeholder="Digite o nome do professor" />
+
+            <label for="telefone">Telefone:</label>
+            <input type="text" id="telefone" placeholder="Digite o telefone do professor" />
+
+            <label for="usuario">Usuário:</label>
+            <input type="text" id="usuario" required placeholder="Digite o usuário" />
+
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" required placeholder="Digite a senha" />
+
+            <label for="disciplinas">Disciplinas Ministradas:</label>
+            <div id="disciplinas">
+                <!-- As disciplinas serão carregadas aqui dinamicamente como checkboxes -->
+            </div>
+
+            <button type="submit">Salvar</button>
+        </form>
+
+        <!-- Tabela para listar os professores -->
+        <table id="professores-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Telefone</th>
+                    <th>Usuário</th>
+                    <th>Disciplinas</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Os professores serão carregados aqui -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Variável para armazenar o ID do professor sendo editado
+        let professorEditandoId = null;
+
+        // Função para mostrar a seção selecionada e esconder as outras
+        function mostrarSecao(secao) {
+            $('.section').removeClass('active');
+            $('#' + secao).addClass('active');
+        }
+
+        // Função para deletar o professor
+        function deletarProfessor(id) {
+            if (confirm('Tem certeza de que deseja excluir este professor?')) {
+                $.ajax({
+                    url: `http://localhost:4000/professores/${id}`,
+                    type: 'DELETE',
+                    success: function() {
+                        alert('Professor excluído com sucesso!');
+                        carregarProfessores();
+                    },
+                    error: function() {
+                        alert('Erro ao excluir o professor');
+                    }
+                });
+            }
+        }
+
+        // Função para editar o professor
+        function editarProfessor(id, nome, telefone, usuario, senha, disciplinas) {
+            professorEditandoId = id;  // Define o ID do professor a ser editado
+
+            // Atribuir os valores ao formulário de edição
+            $('#nome').val(nome);
+            $('#telefone').val(telefone);
+            $('#usuario').val(usuario);
+            $('#senha').val(senha);
+
+            // Limpar a seleção anterior das disciplinas
+            $('#disciplinas input[type="checkbox"]').prop('checked', false);
+
+            // Obter os IDs das disciplinas associadas ao professor
+            const disciplinaIds = disciplinas.split(',');
+
+            // Pré-selecionar as disciplinas associadas ao professor
+            disciplinaIds.forEach(function(disciplinaId) {
+                $(`#disciplina-${disciplinaId}`).prop('checked', true);
+            });
+        }
+
+        // Função para salvar ou editar o professor
+        $('#form-professor').submit(function(event) {
+            event.preventDefault();  // Impede o envio do formulário tradicional
+
+            const nome = $('#nome').val();
+            const telefone = $('#telefone').val();
+            const usuario = $('#usuario').val();
+            const senha = $('#senha').val();
+            const disciplinasSelecionadas = $('#disciplinas input[type="checkbox"]:checked')
+                .map(function() {
+                    return parseInt($(this).val(), 10);  // Garantir que o valor seja um número
+                }).get();  // Retorna um array com os IDs das disciplinas
+
+            // Verificar se todos os campos obrigatórios foram preenchidos
+            if (!nome || !usuario || !senha || disciplinasSelecionadas.length === 0) {
+                alert("Todos os campos são obrigatórios.");
+                return;
+            }
+
+            // Se estamos editando um professor
+            if (professorEditandoId) {
+                // Enviar uma requisição PUT para editar o professor
+                $.ajax({
+                    url: `http://localhost:4000/professores/${professorEditandoId}`,
+                    method: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        nome: nome,
+                        telefone: telefone,
+                        usuario: usuario,
+                        senha: senha,
+                        disciplinas: disciplinasSelecionadas
+                    }),
+                    success: function(response) {
+                        alert('Professor atualizado com sucesso!');
+                        carregarProfessores();  // Atualiza a lista de professores após a edição
+                        $('#form-professor')[0].reset();  // Limpa o formulário
+                        professorEditandoId = null;  // Resetar o estado de edição
+                    },
+                    error: function() {
+                        alert('Erro ao editar o professor');
+                    }
+                });
+            } else {
+                // Enviar uma requisição POST para criar o novo professor
+                $.ajax({
+                    url: 'http://localhost:4000/professores',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        nome: nome,
+                        telefone: telefone,
+                        usuario: usuario,
+                        senha: senha,
+                        disciplinas: disciplinasSelecionadas
+                    }),
+                    success: function(response) {
+                        alert('Professor cadastrado com sucesso!');
+                        carregarProfessores();  // Atualiza a lista de professores após o cadastro
+                        $('#form-professor')[0].reset();  // Limpa o formulário
+                    },
+                    error: function() {
+                        alert('Erro ao cadastrar o professor');
+                    }
+                });
+            }
+        });
+
+        // Função para carregar os professores
+        function carregarProfessores() {
+            $.get('http://localhost:4000/professores', function(professores) {
+                $('#professores-table tbody').empty(); // Limpa a tabela antes de inserir novos dados
+
+                // Carregar as disciplinas para mapear os IDs para os nomes
+                $.get('http://localhost:4000/disciplinas', function(disciplinas) {
+                    const disciplinasMap = {}; 
+                    disciplinas.forEach(function(disciplina) {
+                        disciplinasMap[disciplina.id] = disciplina.nome;  // Cria um mapa de ID para nome
+                    });
+
+                    professores.forEach(function(professor) {
+                        // Converte a string de disciplinas para um array, dividindo pelos vírgulas
+                        const disciplinaIds = professor.disciplinas ? professor.disciplinas.split(',') : [];
+
+                        // Mapeia os IDs para os nomes das disciplinas
+                        const nomesDisciplinas = disciplinaIds.map(function(disciplinaId) {
+                            return disciplinasMap[disciplinaId];  // Substitui ID pelo nome da disciplina
+                        });
+
+                        $('#professores-table tbody').append(`
+                            <tr>
+                                <td>${professor.nome}</td>
+                                <td>${professor.telefone}</td>
+                                <td>${professor.usuario}</td>
+                                <td>${nomesDisciplinas.join(', ')}</td> <!-- Exibe os nomes das disciplinas -->
+                                <td>
+                                    <button onclick="editarProfessor(${professor.id}, '${professor.nome}', '${professor.telefone}', '${professor.usuario}', '${professor.senha}', '${professor.disciplinas}')">Editar</button>
+                                    <button class="delete" onclick="deletarProfessor(${professor.id})">Excluir</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                });
+            });
+        }
+
+        // Função para carregar as disciplinas
+        function carregarDisciplinas() {
+            $.get('http://localhost:4000/disciplinas', function(disciplinas) {
+                $('#disciplinas').empty();
+                disciplinas.forEach(function(disciplina) {
+                    $('#disciplinas').append(`
+                        <label>
+                            <input type="checkbox" id="disciplina-${disciplina.id}" value="${disciplina.id}" />
+                            ${disciplina.nome}
+                        </label><br>
+                    `);
+                });
+            });
+        }
+
+        // Carregar as disciplinas e professores ao carregar a página
+        $(document).ready(function() {
+            carregarDisciplinas();
+            carregarProfessores();
+        });
+    </script>
+</body>
+</html>

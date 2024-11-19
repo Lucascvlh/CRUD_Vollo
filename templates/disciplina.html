@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Acadêmica</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Estilo global */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0056b3;
+            margin-top: 30px;
+            font-size: 2.5em;
+        }
+
+        /* Navegação */
+        nav {
+            background-color: #007bff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            font-size: 1.2em;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #ffcc00;
+        }
+
+        /* Seções */
+        .section {
+            display: none;
+            padding: 20px;
+        }
+
+        .active {
+            display: block;
+        }
+
+        /* Formulário */
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        form input[type="text"], form input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        form button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        form button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Tabela */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        table td button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        table td button:hover {
+            background-color: #218838;
+        }
+
+        table td button.delete {
+            background-color: #dc3545;
+        }
+
+        table td button.delete:hover {
+            background-color: #c82333;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            nav {
+                padding: 10px;
+            }
+
+            nav a {
+                font-size: 1em;
+                margin: 0 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            form input[type="text"], form input[type="number"] {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+
+            form button {
+                font-size: 0.9em;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Gestão Acadêmica</h1>
+
+    <!-- Navegação -->
+    <nav>
+        <a href="disciplina" onclick="mostrarSecao('disciplina')">Disciplinas</a>
+        <a href="aluno" onclick="mostrarSecao('aluno')">Alunos</a>
+        <a href="curso" onclick="mostrarSecao('curso')">Cursos</a>
+        <a href="professor" onclick="mostrarSecao('professor')">Professores</a>
+    </nav>
+
+    <!-- Seção Disciplina -->
+    <div id="disciplina" class="section">
+        <h2>Gestão de Disciplinas</h2>
+        <form id="form-disciplina">
+            <label for="nome">Nome da Disciplina:</label>
+            <input type="text" id="nome" required placeholder="Digite o nome da disciplina" />
+            <label for="carga_horaria">Carga Horária:</label>
+            <input type="number" id="carga_horaria" required placeholder="Digite a carga horária" />
+            <button type="submit">Adicionar Disciplina</button>
+        </form>
+        <table id="disciplinas-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Carga Horária</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- As disciplinas serão exibidas aqui -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Seção Aluno -->
+    <div id="aluno" class="section">
+        <h2>Gestão de Alunos</h2>
+        <p>Listar, adicionar, editar e excluir alunos.</p>
+    </div>
+
+    <!-- Seção Curso -->
+    <div id="curso" class="section">
+        <h2>Gestão de Cursos</h2>
+        <p>Listar, adicionar, editar e excluir cursos.</p>
+    </div>
+
+    <!-- Seção Professor -->
+    <div id="professor" class="section">
+        <h2>Gestão de Professores</h2>
+        <p>Listar, adicionar, editar e excluir professores.</p>
+    </div>
+
+    <script>
+        // Função para mostrar a seção selecionada e esconder as outras
+        function mostrarSecao(secao) {
+            // Esconde todas as seções
+            $('.section').removeClass('active');
+
+            // Mostra a seção selecionada
+            $('#' + secao).addClass('active');
+        }
+
+        // Funções para editar e deletar disciplinas
+        function editarDisciplina(id, nome, carga_horaria) {
+            const novoNome = prompt("Editar Nome da Disciplina:", nome);
+            const novaCargaHoraria = prompt("Editar Carga Horária:", carga_horaria);
+
+            if (novoNome && novaCargaHoraria) {
+                $.ajax({
+                    url: `http://localhost:4000/disciplinas/${id}`,
+                    method: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        nome: novoNome,
+                        carga_horaria: novaCargaHoraria
+                    }),
+                    success: function(response) {
+                        alert('Disciplina atualizada com sucesso!');
+                        carregarDisciplinas();  // Recarrega a tabela com as novas disciplinas
+                    },
+                    error: function(error) {
+                        alert('Erro ao atualizar disciplina: ' + error.responseText);
+                    }
+                });
+            }
+        }
+
+        function deletarDisciplina(id) {
+            const confirmacao = confirm("Tem certeza que deseja excluir esta disciplina?");
+            if (confirmacao) {
+                $.ajax({
+                    url: `http://localhost:4000/disciplinas/${id}`,
+                    method: 'DELETE',
+                    success: function(response) {
+                        alert('Disciplina excluída com sucesso!');
+                        carregarDisciplinas();  // Recarrega a tabela com as disciplinas restantes
+                    },
+                    error: function(error) {
+                        alert('Erro ao excluir disciplina: ' + error.responseText);
+                    }
+                });
+            }
+        }
+
+        // Função para carregar as disciplinas
+        function carregarDisciplinas() {
+            $.get('http://localhost:4000/disciplinas', function(data) {
+                const tableBody = $('#disciplinas-table tbody');
+                tableBody.empty();  // Limpa a tabela antes de adicionar os novos dados
+                data.forEach(disciplina => {
+                    tableBody.append(`
+                        <tr id="disciplina-${disciplina.id}">
+                            <td>${disciplina.nome}</td>
+                            <td>${disciplina.carga_horaria}</td>
+                            <td>
+                                <button onclick="editarDisciplina('${disciplina.nome}', ${disciplina.carga_horaria})"><i class="fas fa-edit"></i> Editar</button>
+                                <button class="delete" onclick="deletarDisciplina(${disciplina.id})"><i class="fas fa-trash"></i> Deletar</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            });
+        }
+
+        // Carregar as disciplinas ao iniciar a página
+        $(document).ready(function() {
+            mostrarSecao('disciplina');
+            
+            // Adicionar funcionalidade do formulário de disciplinas
+            $('#form-disciplina').submit(function(event) {
+                event.preventDefault();
+
+                const nome = $('#nome').val();
+                const carga_horaria = $('#carga_horaria').val();
+
+                $.ajax({
+                    url: 'http://localhost:4000/disciplinas',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        nome: nome,
+                        carga_horaria: carga_horaria
+                    }),
+                    success: function(response) {
+                        alert('Disciplina adicionada com sucesso!');
+                        carregarDisciplinas();  // Recarrega a tabela com as novas disciplinas
+                        $('#form-disciplina')[0].reset();  // Limpa o formulário
+                    },
+                    error: function(error) {
+                        alert('Erro ao adicionar disciplina: ' + error.responseText);
+                    }
+                });
+            });
+
+            // Carregar as disciplinas ao iniciar a página
+            carregarDisciplinas();
+        });
+    </script>
+</body>
+</html>
