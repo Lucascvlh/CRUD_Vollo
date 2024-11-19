@@ -559,3 +559,5 @@ def excluir_aluno(id):
         connection.close()
         return jsonify({'error': str(e)}), 500
 
+if '__main__' == __name__:
+    app.run(debug=True, port=4000)
